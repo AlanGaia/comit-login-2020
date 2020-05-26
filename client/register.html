@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+  <title>Register & Login</title>
+</head>
+<body>
+  <div class="container">
+    <div class="row">
+      <div class="col-6 bg-light p-3">
+
+        <!-- Titulo del Falso formulario -->
+        <h4 class="mb-3">Registro</h4>
+        <small id="suggestMsg" class="form-text text-muted mb-4">Todos los campos son obligatorios</small>
+
+        <!-- Usuarix -->
+        <div class="form-group">
+          <label for="input-user">Usuarix</label>
+          <input type="text" class="form-control" name="input-user" id="input-user" placeholder="Nombre" autofocus>
+        </div>
+
+        <!-- Contraseña -->
+        <div class="form-group">
+          <label for="exampleInputPassword1">Password</label>
+          <input type="password" class="form-control" id="input-password" placeholder="Contraseña">
+        </div>
+
+        <!-- Confirmar Contraseña -->
+        <div class="form-group">
+          <label for="confirm-input-password">Confirmar Password</label>
+          <input type="password" class="form-control" name="confirm-input-password" id="confirm-input-password" placeholder="Reingresar Contraseña">
+        </div>
+      
+        <!-- Muestro el mensaje segun el codigo de respuesta  -->
+        <p id="result"></p>
+
+        <!-- Boton para accionar el AJAX  -->
+        <button class="btn btn-success" onclick="register()">Register</button>
+
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    function register() {
+      //Tomo los valores de los input y los guardo en una constante
+      const username = document.getElementById("input-user").value;
+      const password = document.getElementById("input-password").value;
+      const confirmPassword = document.getElementById("confirm-input-password").value;
+
+      //chequeo esos valores por consola
+      console.log('Usuarix', username, 'contraseña', password,'confirmar contraseña', confirmPassword);
+
+      //Paso un Objeto JS con los valores del form  y lo Guardo como JSON en userBody
+      const userBody = JSON.stringify({
+        username: username,
+        password: password,
+        confirmPassword: confirmPassword
+      });
+      /* 
+        userBody = 
+                  "{
+                    "username": 'admin',
+                    "password": 'admin',
+                    "confirmPassword": 'admin' 
+                  }"
+      */
+
+
+      //Inicio una peticion AJAX
+      const xhr = new XMLHttpRequest();
+      //Voy a la linea 107. 
+      //---------------------------
+      
+      //Vuelvo desde server.js con una respuesta
+      //Cuando obtengo una Respuesta ejecuto esto
+
+      xhr.onload = function () {
+        // Respuesta que me trajo el Server.js
+        //this.status === res.statusCode = Number
+        //this.responseText === res.send('mensaje de respuesta') = String
+        console.log(`Codigo de respuesta: ${this.status}
+        Mensaje de respuesta: ${this.responseText}`);
+
+        //Mensaje para mostrar al usuarix con la respuesta del server
+        const resultMsg = document.getElementById("result");
+        if (this.status !== 200) {
+          //Mensaje Rojo | Algo salio mal porque el codigo no es 200 y no pudimos registrarlo
+
+          resultMsg.setAttribute('class', 'alert alert-danger');
+          resultMsg.textContent = this.responseText;
+        } else {
+          //Mensaje Verde |  Codigo 200 Lo pudimos registrar
+
+          resultMsg.setAttribute('class', 'alert alert-success');
+          resultMsg.textContent = "Usuarix registradx";
+
+          // Redirigimos al usarix registrado al login para que inicie sesión
+          setTimeout(() => {
+            window.location.href = "/";
+          }, 2000);
+
+        }
+      }
+
+      //Busco al endpoint /register con el metodo POST | a su vez le aviso que le voy a pasar un JSON (userBody) -> se hizo en linea 57
+      xhr.open("POST", "/register");
+      xhr.setRequestHeader("Content-Type", "application/json");
+
+      xhr.send(userBody); // --> le envio userBody como send y server lo recibe como req.body 
+
+      //Voy a Server.js
+    }
+  </script>
+</body>
+</html>
